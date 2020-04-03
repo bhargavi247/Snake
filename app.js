@@ -1,7 +1,7 @@
 const canvas = document.getElementById("myCanvas");
 const ctx = canvas.getContext("2d");
 ctx.fillStyle='black';
-ctx.fillRect(0,0,canvas.clientWidth,canvas.height);
+ctx.fillRect(0,0,canvas.width,canvas.height);
 //we want to start with a horizontal snake. So y coordinate will remain same, x will redice by 10px everytime
 let snake = [{ x: 300, y: 300 }, { x: 280, y: 300 }, { x: 260, y: 300 }, { x: 240, y: 300 }, { x: 220, y: 300 }];
 
@@ -29,10 +29,11 @@ function drawSnake() {
 };
 
 function createApple() {
+    var max = (500 / 20) + 1;
     // Generate a random number the food x-coordinate
-    appleX = Math.random()*501;
+    appleX = 20*(Math.floor(Math.random()*max));
     // Generate a random number for the food y-coordinate
-    appleY = Math.random()*501;
+    appleY = 20 * (Math.floor(Math.random() * max));
 
     // if the new food location is where the snake currently is, generate a new food location
     snake.forEach(function isFoodOnSnake(part) {
@@ -48,8 +49,15 @@ function drawApple() {
     ctx.fillRect(appleX, appleY, 20, 20);
     ctx.strokeRect(appleX, appleY, 20, 20);
 }
-drawSnake();
-drawApple();
+
+function erasePrevSteps() {
+    //  Select the colour to fill the drawing
+    ctx.fillStyle = 'black';
+    // Draw a "filled" rectangle to cover the entire canvas
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Draw a "border" around the entire canvas
+    ctx.strokeRect(0, 0, canvas.width, canvas.height);
+}
 
 // Start game
 main();
@@ -57,6 +65,24 @@ main();
 createApple();
 // Call changeDirection whenever a key is pressed
 document.addEventListener("keydown", changeDirection);
+
+function main() {
+    // If the game ended return early to stop game
+    if (didGameEnd()) {
+        return;
+    }
+
+    setTimeout(function onTick() {
+        changingDirection = false;
+        erasePrevSteps();
+        drawApple();
+        advanceSnake();
+        drawSnake();
+
+        // Call game again
+        main();
+    }, GAME_SPEED)
+}
 
 //horizontal movement
 //one step right = increase x coordinate of every part by 20px
@@ -74,9 +100,10 @@ function advanceSnake() {
         //score += 10;
         // Display score on screen
         //document.getElementById('score').innerHTML = score;
-        // Generate new food location
-        createFood();
-    } else {
+        // Generate new apple location
+        createApple();
+    } 
+    else {
         // Remove the last part of snake body
         snake.pop();
     }
@@ -84,7 +111,7 @@ function advanceSnake() {
 
 //returns true if the head of the snake touched any part of the snake or if it touched the wall
 function didGameEnd() {
-    for (let i = 2; i < snake.length; i++) {
+    for (let i = 4; i < snake.length; i++) {
         if (snake[i].x === snake[0].x && snake[i].y === snake[0].y){
             return true;
         } 
@@ -137,22 +164,4 @@ function changeDirection(event) {
         dx = 0;
         dy = 20;
     }
-}
-
-function main() {
-    // If the game ended return early to stop game
-    if (didGameEnd()){
-        return;
-    } 
-
-    setTimeout(function onTick() {
-        changingDirection = false;
-        //clearCanvas();
-        drawApple();
-        advanceSnake();
-        drawSnake();
-
-        // Call game again
-        main();
-    }, GAME_SPEED)
 }
