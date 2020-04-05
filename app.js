@@ -29,7 +29,7 @@ function drawSnake() {
 };
 
 function createApple() {
-    var max = (500 / 20) + 1;
+    var max = (500 / 20);
     // Generate a random number the food x-coordinate
     appleX = 20*(Math.floor(Math.random()*max));
     // Generate a random number for the food y-coordinate
